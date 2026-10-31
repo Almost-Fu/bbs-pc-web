@@ -1,0 +1,23 @@
+{
+  "name": "bbs-pc-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "贴吧社区 PC 网页版（Vue 3 + Vite + Vue Router，原生 HTML/CSS）",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 5182"
+  },
+  "dependencies": {
+    "vue": "^3.5.13",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^5.4.11"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
