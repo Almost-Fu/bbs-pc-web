@@ -3,8 +3,10 @@
 独立的桌面端社区前端，使用 Vue 3 + Vite + Vue Router 与原生 HTML/CSS，不依赖 Element Plus，不内置演示数据。所有内容（帖子、贴吧、评论、收藏、关注、消息、资料）均通过真实 FastAPI 后端读写，统一响应体为 `{ code, message, data }`，`code === 0` 为成功。
 
 - 项目目录：`D:/项目/BBS/bbs-pc-web`
-- 开发端口：`5182`
+- 线上地址：`https://bbs-pc-web.vercel.app`
 - 生产后端：`https://bbs-app-backend-zuzm.onrender.com`
+- 开发端口：`5182`
+- Vercel 部署：框架预设 Vite，构建命令 `npm run build`，输出目录 `dist`
 - 路由模式：hash（`createWebHashHistory`），静态托管无需 history 重写
 - 桌面三栏布局：左侧导航、中间内容、右侧热门吧，1440 / 1024 宽度均已验证
 
@@ -109,21 +111,32 @@ bbs-pc-web/
 
 ---
 
-## 生产部署
+## 生产部署（Vercel）
 
-1. 执行 `npm run build`，将 `dist/` 部署到任意静态服务器或 CDN。
-2. 构建前确认 `VITE_API_ORIGIN` 指向实际后端 origin；部署在子路径时设置 `VITE_BASE_PATH`。
+线上地址：`https://bbs-pc-web.vercel.app`。Vercel 项目使用 **Vite** 预设，构建命令 `npm run build`，输出目录 `dist`（本仓库没有 `vercel.json`，这些是 Vercel 项目侧配置）。
+
+1. 在 Vercel 项目的 Production 环境变量中设置 `VITE_API_ORIGIN=https://bbs-app-backend-zuzm.onrender.com`；该值必须是**纯 origin**，不带 `/api`、不带结尾 `/`。修改环境变量后必须重新部署，旧的构建产物不会自动读取新值。
+2. 执行 `npm run build` 生成 `dist/`；部署在子路径时设置 `VITE_BASE_PATH`。
 3. 使用 hash 路由，服务器不需要为前端路由配置 history fallback。
-4. 前后端跨域部署时，需要把 PC 站点域名加入后端环境变量 `CORS_ORIGINS` 白名单；开发环境经 Vite 代理为同源，无需额外配置。若生产使用同域反向代理，则按同域部署处理。
+4. 前后端跨域部署时，后端 `CORS_ORIGINS` 需要包含 PC 域名。当前线上完整值为：
+
+   ```text
+   https://bbs-app-wheat.vercel.app,https://bbs-admin-web.vercel.app,https://bbs-pc-web.vercel.app
+   ```
+
+   逗号分隔、只写纯 origin（不带路径、末尾 `/` 或通配符）；保留已有旧域名，不要只写新增域名。后端保存后需要重新部署才生效。
+5. 推送 Git 只有在 Vercel 已启用对应项目的自动部署时才会触发；未启用时需要在 Vercel 手动 Redeploy。
+
+开发环境经 Vite 代理为同源，无需额外跨域配置；若生产使用同域反向代理，则按同域部署处理。
 
 ---
 
 ## 验收状态
 
-- 生产构建已通过。
+- 生产构建已通过（历史记录）。
 - 浏览器验证通过：1440 / 1024 宽度布局正常；游客点击发布跳转登录；登录页空值校验生效；注册流程保留 redirect 并在成功后返回原页面。
-- 真实 Render 后端当前返回“数据库暂时不可用”，真实账号与写入联调尚未通过。
-- 未执行真实注册、发帖、评论；页面不做 mock 兜底，后端不可用时会展示错误与重试状态。
+- **2026-10-31 部署记录（非实时）**：PC 站点 `https://bbs-pc-web.vercel.app` 已部署；后端 `/api/health` 返回 `code: 0`、`env: production`、`db: true`；`/api/bars` 返回 16 个吧；PC 页面已恢复读取线上数据。
+- `db: true` 只代表后端能连上数据库，不代表全部业务写操作都已在线复验；本轮未重新执行线上注册、发帖、评论等写操作。Render 免费实例冷启动约 30~60 秒，PC 请求超时为 90 秒，冷启动时请耐心等待或先访问 `/api/health` 唤醒。
 
 ## 本地完整演示
 
